@@ -289,6 +289,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 4U72882THN;
+				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = CDProject/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -299,6 +300,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.masterapps.CDProject";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -310,6 +312,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 4U72882THN;
+				DYLIB_CURRENT_VERSION = 1;
 				INFOPLIST_FILE = CDProject/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -320,6 +323,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.masterapps.CDProject";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
