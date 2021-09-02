@@ -12,6 +12,7 @@ GITHUB_API_TOKEN = ENV["GITHUB_API_TOKEN"]
 SLACK_CHANNEL = ENV["SLACK_CHANNEL"] 
 APP_NAME = "CDProject"
 SCHEME = "CDProject"
+GITHUB_TOKEN = ENV["GITHUB_TOKEN"]
 
 # Methods
 
@@ -186,7 +187,7 @@ platform :ios do
 
       # publish a new release into Github
       github_release = set_github_release(
-          api_token: Base64.strict_encode64(GITHUB_API_TOKEN),
+          api_token: GITHUB_TOKEN,
           repository_name: "litoarias/CDProject",
           name: "#{type.capitalize} version v#{version}",
           tag_name: "v#{version}",
