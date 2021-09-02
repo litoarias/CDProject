@@ -18,13 +18,13 @@ jobs:
       - name: Deploy new release
         uses: maierj/fastlane-action@v1.4.0
         with:
-          if: "!contains(github.event.commits[0].message, 'patch')"
+          if: "${{ contains(github.event.commits[0].message, 'patch') }}"
           lane: release bump:patch
           
-          if: "!contains(github.event.commits[0].message, 'minor')"
+          if: "${{ contains(github.event.commits[0].message, 'minor') }}"
           lane: release bump:minor
           
-          if: "!contains(github.event.commits[0].message, 'major')"
+          if: "${{ contains(github.event.commits[0].message, 'major') }}"
           lane: release bump:major
           
         env:
