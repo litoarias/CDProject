@@ -163,7 +163,6 @@ platform :ios do
         }
       )
 
-
       puts "Llego new_git_release #{version} \n #{comments} \n #{type}"
 
       # Publish tag and release on Github
@@ -195,10 +194,7 @@ platform :ios do
           commitish: "main"
       )
 
-
-      puts "PASO new_git_release"
-
-      # Transport and deploy to testflight
+      # Transport and deploy to App Store Connect
       pilot(
         apple_id: "#{DEVELOPER_APP_ID}",
         app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
