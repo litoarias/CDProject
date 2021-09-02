@@ -16,7 +16,13 @@ lane :closed_beta do
       in_house: false
     )
 
+    puts "---->>>>>"
 
+    puts "#{GIT_USER}:#{GIT_AUTHORIZATION}"
+
+    puts "---->>>>>"
+
+    
     # Signin step
     match(
       type: 'appstore',
