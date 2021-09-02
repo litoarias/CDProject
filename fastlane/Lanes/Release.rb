@@ -38,7 +38,7 @@ lane :release do |lane|
   api_key = app_store_connect_api_key(
     key_id: APPLE_KEY_ID,
     issuer_id: APPLE_ISSUER_ID,
-    key_content: APPLE_API_KEY_CONTENT,            
+    key_content: APPLE_KEY_CONTENT,            
     duration: 1200,            
     in_house: false
   )
