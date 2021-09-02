@@ -16,15 +16,21 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Deploy new release
+        if: "${{ contains(github.event.commits[0].message, 'patch') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
-          if: "${{ contains(github.event.commits[0].message, 'patch') }}"
           lane: release bump:patch
-          
-          if: "${{ contains(github.event.commits[0].message, 'minor') }}"
+      
+      - name: Deploy new release
+        if: "${{ contains(github.event.commits[0].message, 'minor') }}"
+        uses: maierj/fastlane-action@v1.4.0
+        with:
           lane: release bump:minor
-          
-          if: "${{ contains(github.event.commits[0].message, 'major') }}"
+
+      - name: Deploy new release
+        if: "${{ contains(github.event.commits[0].message, 'major') }}"
+        uses: maierj/fastlane-action@v1.4.0
+        with:
           lane: release bump:major
           
         env:
