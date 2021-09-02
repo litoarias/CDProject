@@ -35,38 +35,6 @@ def ensure_temp_keychain(name, password)
   create_temp_keychain(name, password)
 end
 
-def new_git_release(version, comments, type)
-  # creates a bump version commit 
-  commit_version_bump(
-    message: "Version bumped to v#{version}",
-    xcodeproj: "#{APP_NAME}.xcodeproj"
-  )
-
-  # push bump commit
-  push_to_git_remote(
-      tags: false
-  )
-
-  # create a local tag with the new version
-  add_git_tag(
-      message: comments,
-      tag: "v#{version}",
-      prefix: "v",
-      build_number: version
-  )    
-
-  # publish a new release into Github
-  github_release = set_github_release(
-      api_token: Base64.strict_encode64(GIT_AUTHORIZATION),
-      repository_name: "litoarias/CDProject",
-      name: "#{type.capitalize} version v#{version}",
-      tag_name: "v#{version}",
-      description: comments,
-      commitish: "main"
-  )
-
-end
-
 def broadcast_message()
   version = get_info_plist_value(
     path: "#{APP_NAME}/Info.plist",
@@ -122,7 +90,7 @@ platform :ios do
         date_format: "short",
         match_lightweight_tag: false, 
         merge_commit_filtering: "exclude_merges" 
-      ) 
+      ) || []
 
       # calculates the new version according to
       # the semantic version added
@@ -198,11 +166,34 @@ platform :ios do
       puts "Llego new_git_release #{version} \n #{comments} \n #{type}"
 
       # Publish tag and release on Github
-      new_git_release(
-        version: version,
-        comments: comments,
-        type: type
+      # creates a bump version commit 
+      commit_version_bump(
+        message: "Version bumped to v#{version}"
       )
+
+      # push bump commit
+      push_to_git_remote(
+          tags: false
+      )
+
+      # create a local tag with the new version
+      add_git_tag(
+          message: comments,
+          tag: "v#{version}",
+          prefix: "v",
+          build_number: version
+      )    
+
+      # publish a new release into Github
+      github_release = set_github_release(
+          api_token: Base64.strict_encode64(GIT_AUTHORIZATION),
+          repository_name: "litoarias/CDProject",
+          name: "#{type.capitalize} version v#{version}",
+          tag_name: "v#{version}",
+          description: comments,
+          commitish: "main"
+      )
+
 
       puts "PASO new_git_release"
 
@@ -222,6 +213,7 @@ platform :ios do
       delete_temp_keychain(TEMP_KEYCHAIN_USER)
    
     rescue => exception
+      puts exception.to_s
       on_error(exception)
     end
 
