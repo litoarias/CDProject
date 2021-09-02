@@ -1,14 +1,19 @@
 default_platform(:ios)
 
-DEVELOPER_APP_ID = ENV["DEVELOPER_APP_ID"] || ENV["LOCAL_DEVELOPER_APP_ID"]
-DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"] || ENV["LOCAL_DEVELOPER_APP_IDENTIFIER"]
-PROVISIONING_PROFILE_SPECIFIER = ENV["PROVISIONING_PROFILE_SPECIFIER"] || ENV["LOCAL_PROVISIONING_PROFILE_SPECIFIER"]
-TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"] || ENV["LOCAL_TEMP_KEYCHAIN_USER"]
-TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"] || ENV["LOCAL_TEMP_KEYCHAIN_PASSWORD"]
-APPLE_ISSUER_ID = ENV["APPLE_ISSUER_ID"] || ENV["LOCAL_APPLE_ISSUER_ID"]
-APPLE_KEY_ID = ENV["APPLE_KEY_ID"] || ENV["LOCAL_APPLE_KEY_ID"]
-APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"] || ENV["LOCAL_APPLE_KEY_CONTENT"]
-GIT_AUTHORIZATION = ENV["GIT_AUTHORIZATION"] || ENV["LOCAL_GIT_AUTHORIZATION"]
+DEVELOPER_APP_ID = ENV["DEVELOPER_APP_ID"]
+DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"]
+PROVISIONING_PROFILE_SPECIFIER = ENV["PROVISIONING_PROFILE_SPECIFIER"]
+TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"]
+TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"]
+APPLE_ISSUER_ID = ENV["APPLE_ISSUER_ID"]
+APPLE_KEY_ID = ENV["APPLE_KEY_ID"]
+APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"]
+GIT_AUTHORIZATION = ENV["GIT_AUTHORIZATION"]
+SLACK_CHANNEL = ENV["SLACK_CHANNEL"] 
+APP_NAME = "CDProject"
+SCHEME = "CDProject"
+
+# Methods
 
 def delete_temp_keychain(name)
   delete_keychain(
@@ -30,53 +35,196 @@ def ensure_temp_keychain(name, password)
   create_temp_keychain(name, password)
 end
 
-platform :ios do
-  lane :closed_beta do
-    keychain_name = TEMP_KEYCHAIN_USER
-    keychain_password = TEMP_KEYCHAIN_PASSWORD
-    ensure_temp_keychain(keychain_name, keychain_password)
+def new_git_release(version, comments, type)
+  # creates a bump version commit 
+  commit_version_bump(
+    message: "Version bumped to v#{version}",
+    xcodeproj: "#{APP_NAME}.xcodeproj"
+  )
 
-    api_key = app_store_connect_api_key(
-      key_id: APPLE_KEY_ID,
-      issuer_id: APPLE_ISSUER_ID,
-      key_content: APPLE_KEY_CONTENT,            
-      duration: 1200,            
-      in_house: false
-    )
-    
-    increment_build_number(xcodeproj: "CDProject.xcodeproj")
+  # push bump commit
+  push_to_git_remote(
+      tags: false
+  )
+
+  # create a local tag with the new version
+  add_git_tag(
+      message: comments,
+      tag: "v#{version}",
+      prefix: "v",
+      build_number: version
+  )    
+
+  # publish a new release into Github
+  github_release = set_github_release(
+      api_token: Base64.strict_encode64(GIT_AUTHORIZATION),
+      repository_name: "litoarias/CDProject",
+      name: "#{type.capitalize} version v#{version}",
+      tag_name: "v#{version}",
+      description: comments,
+      commitish: "main"
+  )
+
+end
+
+def broadcast_message()
+  version = get_info_plist_value(
+    path: "#{APP_NAME}/Info.plist",
+    key: "CFBundleShortVersionString"
+  )
   
-    match(
-      type: 'appstore',
-      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
-      git_basic_authorization: Base64.strict_encode64(GIT_AUTHORIZATION),
-      readonly: true,
-      keychain_name: keychain_name,
-      keychain_password: keychain_password,
-      api_key: api_key
-    )
+  build = get_info_plist_value(
+    path: "#{APP_NAME}/Info.plist",
+    key: "CFBundleVersion"
+  )
 
-    gym(
-      configuration: "Release",
-      scheme: "CDProject",
-      export_method: "app-store",
-      export_options: {
-        provisioningProfiles: { 
-            DEVELOPER_APP_ID => PROVISIONING_PROFILE_SPECIFIER
+  slack(
+    message: "Hi! A new iOS build has been submitted to TestFlight",
+    payload: {
+      "Build Date" => Time.new.to_s,
+      "Release Version" => version+"."+build
+    },
+    slack_url: SLACK_CHANNEL,
+    use_webhook_configured_username_and_icon: true,
+    fail_on_error: false,
+    success: true
+  ) 
+end
+
+def on_error(exception)
+  slack(
+    message: exception.to_s,
+    slack_url: SLACK_CHANNEL,
+    success: false,
+    payload: { "Output" => exception.to_s }
+  )
+end 
+
+platform :ios do
+  lane :closed_beta do |lane|
+
+      begin 
+        if !lane[:bump]
+          raise Exception.new "No bump type defined! Use one of: patch | minor | major".red
+        end
+      rescue Exception => e  
+        puts e.message  
+        exit!
+      end  
+
+      begin
+          
+      # get the last commit comments from Git history
+      # and creates our changelog
+      comments = changelog_from_git_commits(
+        between: ["origin/main", "HEAD"],
+        pretty: "- %s",
+        date_format: "short",
+        match_lightweight_tag: false, 
+        merge_commit_filtering: "exclude_merges" 
+      ) 
+
+      # calculates the new version according to
+      # the semantic version added
+      type = lane[:bump]
+
+      old = last_git_tag || "0.0.1"
+
+      version = old
+
+      old[0] = ''
+      oldArr = old.split('.').map{|v| v.to_i}    
+
+      if type == "patch"
+          version = "#{oldArr[0]}.#{oldArr[1]}.#{oldArr[2] + 1}"
+      elsif type == "minor"
+          version = "#{oldArr[0]}.#{oldArr[1] + 1}.0"
+      elsif type == "major"
+          version = "#{oldArr[0] + 1}.0.0"
+      end   
+      
+      if version == old
+          UI.user_error!("Wrong release type parameter. Enter: patch | minor | major")
+      end
+
+      puts "Llego increment_version_number"
+
+      # set the new version number
+      increment_version_number(
+          version_number: version
+      )
+
+      puts "PASO de increment_version_number"
+
+      # increment build number
+      increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
+
+      # Temporay keychain creation
+      ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
+
+      # Connect to App Store Connect
+      api_key = app_store_connect_api_key(
+        key_id: APPLE_KEY_ID,
+        issuer_id: APPLE_ISSUER_ID,
+        key_content: APPLE_KEY_CONTENT,            
+        duration: 1200,            
+        in_house: false
+      )
+
+      # Signin step
+      match(
+        type: 'appstore',
+        app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+        git_basic_authorization: Base64.strict_encode64(GIT_AUTHORIZATION),
+        readonly: true,
+        keychain_name: TEMP_KEYCHAIN_USER,
+        keychain_password: TEMP_KEYCHAIN_PASSWORD,
+        api_key: api_key
+      )
+
+      # Make IPA
+      gym(
+        configuration: "Release",
+        scheme: SCHEME,
+        export_method: "app-store",
+        export_options: {
+          provisioningProfiles: { 
+              DEVELOPER_APP_ID => PROVISIONING_PROFILE_SPECIFIER
+          }
         }
-      }
-    )
+      )
 
-    pilot(
-      apple_id: "#{DEVELOPER_APP_ID}",
-      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
-      skip_waiting_for_build_processing: true,
-      skip_submission: true,
-      distribute_external: false,
-      notify_external_testers: false,
-      ipa: "./CDProject.ipa"
-    )
 
-    delete_temp_keychain(keychain_name)
+      puts "Llego new_git_release #{version} \n #{comments} \n #{type}"
+
+      # Publish tag and release on Github
+      new_git_release(
+        version: version,
+        comments: comments,
+        type: type
+      )
+
+      puts "PASO new_git_release"
+
+      # Transport and deploy to testflight
+      pilot(
+        apple_id: "#{DEVELOPER_APP_ID}",
+        app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+        skip_waiting_for_build_processing: true,
+        skip_submission: true,
+        distribute_external: false,
+        notify_external_testers: false,
+        ipa: "./#{APP_NAME}.ipa"
+      )
+
+      broadcast_message
+      
+      delete_temp_keychain(TEMP_KEYCHAIN_USER)
+   
+    rescue => exception
+      on_error(exception)
+    end
+
   end
+
 end
