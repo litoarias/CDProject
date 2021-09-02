@@ -15,13 +15,6 @@ lane :closed_beta do
       duration: 1200,            
       in_house: false
     )
-
-    puts "---->>>>>"
-
-    puts "#{GIT_USER}:#{GIT_AUTHORIZATION}"
-
-    puts "---->>>>>"
-
     
     # Signin step
     match(
