@@ -41,15 +41,15 @@ lane :closed_beta do
     )
 
     # Transport and deploy to testflight
-    # pilot(
-    #   apple_id: "#{DEVELOPER_APP_ID}",
-    #   app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
-    #   skip_waiting_for_build_processing: true,
-    #   skip_submission: true,
-    #   distribute_external: false,
-    #   notify_external_testers: false,
-    #   ipa: "./#{APP_NAME}.ipa"
-    # )
+    pilot(
+      apple_id: "#{DEVELOPER_APP_ID}",
+      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false,
+      notify_external_testers: false,
+      ipa: "./#{APP_NAME}.ipa"
+    )
 
     broadcast_message
 
