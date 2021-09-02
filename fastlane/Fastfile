@@ -86,12 +86,14 @@ platform :ios do
       # get the last commit comments from Git history
       # and creates our changelog
       comments = changelog_from_git_commits(
-        between: ["origin/main", "HEAD"],
+        between: ["origin/develop", "HEAD"],
         pretty: "- %s",
         date_format: "short",
         match_lightweight_tag: false, 
         merge_commit_filtering: "exclude_merges" 
       ) || []
+      puts "AQUIIIII"
+        puts comments
 
       # calculates the new version according to
       # the semantic version added
@@ -116,14 +118,10 @@ platform :ios do
           UI.user_error!("Wrong release type parameter. Enter: patch | minor | major")
       end
 
-      puts "Llego increment_version_number"
-
       # set the new version number
       increment_version_number(
           version_number: version
       )
-
-      puts "PASO de increment_version_number"
 
       # increment build number
       increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
