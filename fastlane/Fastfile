@@ -187,7 +187,7 @@ platform :ios do
       # publish a new release into Github
       github_release = set_github_release(
           api_token: Base64.strict_encode64(GITHUB_API_TOKEN),
-          repository_name: "litoarias/CDProject",
+          repository_name: "https://github.com/litoarias/CDProject",
           name: "#{type.capitalize} version v#{version}",
           tag_name: "v#{version}",
           description: comments,
