@@ -94,8 +94,9 @@ platform :ios do
         match_lightweight_tag: false, 
         merge_commit_filtering: "exclude_merges" 
       ) || []
-      puts "AQUIIIII"
-        puts comments
+      
+      
+      puts comments
 
       # calculates the new version according to
       # the semantic version added

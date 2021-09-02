@@ -1,5 +1,7 @@
 name: CD
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -12,29 +14,13 @@ jobs:
     runs-on: macOS-latest
     
     steps:
-      
       - name: Checkout repository
         uses: actions/checkout@v1
 
-      - name: Deploy new patch release
-        if: "${{ contains(github.event.pull_request.base.ref, 'patch') }}"
+      - name: Deploy iOS Beta to TestFlight via Fastlane
         uses: maierj/fastlane-action@v1.4.0
         with:
-          lane: release bump:patch
-      
-      - name: Deploy new minor release
-        if: "${{ contains(github.event.pull_request.base.ref, 'minor') }}"
-        uses: maierj/fastlane-action@v1.4.0
-        with:
-          lane: release bump:minor
-
-      - name: Deploy new major release
-        if: "${{ contains(github.event.pull_request.base.ref, 'major') }}"
-        uses: maierj/fastlane-action@v1.4.0
-        with:
-          lane: release bump:major
-        
-          
+          lane: closed_beta
         env:
           APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
           DEVELOPER_APP_ID: '${{ secrets.DEVELOPER_APP_ID }}'
@@ -43,11 +29,10 @@ jobs:
           FASTLANE_APPLE_ID: '${{ secrets.FASTLANE_APPLE_ID }}'
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: '${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}'
           MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
+          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
           PROVISIONING_PROFILE_SPECIFIER: '${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}'
           TEMP_KEYCHAIN_PASSWORD: '${{ secrets.TEMP_KEYCHAIN_PASSWORD }}'
           TEMP_KEYCHAIN_USER: '${{ secrets.TEMP_KEYCHAIN_USER }}'
           APPLE_KEY_ID: '${{ secrets.APPLE_KEY_ID }}'
           APPLE_ISSUER_ID: '${{ secrets.APPLE_ISSUER_ID }}'
           APPLE_KEY_CONTENT: '${{ secrets.APPLE_KEY_CONTENT }}'
-          GIT_USER: '${{ secrets.GIT_USER }}'
-          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'

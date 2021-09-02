@@ -16,9 +16,9 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## iOS
-### ios closed_beta
+### ios release
 ```
-fastlane ios closed_beta
+fastlane ios release
 ```
 
 
