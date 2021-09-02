@@ -12,30 +12,24 @@ jobs:
     runs-on: macOS-latest
     
     steps:
-      - name: Set env.BRANCH
-        run: |
-          # Short name for current branch. For PRs, use target branch (base ref)
-          GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
-          echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
-          echo github.event.pull_request.base.ref
-
+      
       - name: Checkout repository
         uses: actions/checkout@v1
 
       - name: Deploy new patch release
-        if: "${{ contains(env.GIT_BRANCH, 'patch') }}"
+        if: "${{ contains(github.event.pull_request.base.ref, 'patch') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:patch
       
       - name: Deploy new minor release
-        if: "${{ contains(env.GIT_BRANCH, 'minor') }}"
+        if: "${{ contains(github.event.pull_request.base.ref, 'minor') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:minor
 
       - name: Deploy new major release
-        if: "${{ contains(env.GIT_BRANCH, 'major') }}"
+        if: "${{ contains(github.event.pull_request.base.ref, 'major') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:major
