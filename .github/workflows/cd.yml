@@ -12,27 +12,30 @@ jobs:
     runs-on: macOS-latest
     
     steps:
+      - name: Set env.BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v1
 
-      - name: Deploy new release
-        if: "${{ contains(github.event.commits[0].message, 'patch') }}"
+      - name: Deploy new patch release
+        if: "${{ contains(env.BRANCH, 'patch') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:patch
       
-      - name: Deploy new release
-        if: "${{ contains(github.event.commits[0].message, 'minor') }}"
+      - name: Deploy new minor release
+        if: "${{ contains(env.BRANCH, 'minor') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:minor
 
-      - name: Deploy new release
-        if: "${{ contains(github.event.commits[0].message, 'major') }}"
+      - name: Deploy new major release
+        if: "${{ contains(env.BRANCH, 'major') }}"
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: release bump:major
-          
+        
         env:
           APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
           DEVELOPER_APP_ID: '${{ secrets.DEVELOPER_APP_ID }}'

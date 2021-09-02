@@ -43,6 +43,7 @@ def broadcast_message()
     key: "CFBundleShortVersionString"
   )
   
+  
   build = get_info_plist_value(
     path: "#{APP_NAME}/Info.plist",
     key: "CFBundleVersion"
