@@ -21,14 +21,12 @@ jobs:
         uses: maierj/fastlane-action@v1.4.0
         with:
           lane: closed_beta
-          
         env:
           APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
           DEVELOPER_APP_ID: '${{ secrets.DEVELOPER_APP_ID }}'
           DEVELOPER_APP_IDENTIFIER: '${{ secrets.DEVELOPER_APP_IDENTIFIER }}'
           DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
           FASTLANE_APPLE_ID: '${{ secrets.FASTLANE_APPLE_ID }}'
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: '${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}'
           MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
           GIT_USER: '${{ secrets.GIT_USER }}'
           GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
