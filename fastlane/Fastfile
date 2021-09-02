@@ -8,7 +8,7 @@ TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"]
 APPLE_ISSUER_ID = ENV["APPLE_ISSUER_ID"]
 APPLE_KEY_ID = ENV["APPLE_KEY_ID"]
 APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"]
-GIT_AUTHORIZATION = ENV["GIT_AUTHORIZATION"]
+GITHUB_API_TOKEN = ENV["GITHUB_API_TOKEN"]
 SLACK_CHANNEL = ENV["SLACK_CHANNEL"] 
 APP_NAME = "CDProject"
 SCHEME = "CDProject"
@@ -143,7 +143,7 @@ platform :ios do
       match(
         type: 'appstore',
         app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
-        git_basic_authorization: Base64.strict_encode64(GIT_AUTHORIZATION),
+        git_basic_authorization: Base64.strict_encode64(GITHUB_API_TOKEN),
         readonly: true,
         keychain_name: TEMP_KEYCHAIN_USER,
         keychain_password: TEMP_KEYCHAIN_PASSWORD,
@@ -186,7 +186,7 @@ platform :ios do
 
       # publish a new release into Github
       github_release = set_github_release(
-          api_token: Base64.strict_encode64(GIT_AUTHORIZATION),
+          api_token: Base64.strict_encode64(GITHUB_API_TOKEN),
           repository_name: "litoarias/CDProject",
           name: "#{type.capitalize} version v#{version}",
           tag_name: "v#{version}",
