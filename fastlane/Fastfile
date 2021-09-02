@@ -86,7 +86,7 @@ platform :ios do
       # get the last commit comments from Git history
       # and creates our changelog
       comments = changelog_from_git_commits(
-        between: ["origin/develop", "HEAD"],
+        between: ["main", "origin/develop"],
         pretty: "- %s",
         date_format: "short",
         match_lightweight_tag: false, 
