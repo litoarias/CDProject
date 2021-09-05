@@ -96,7 +96,7 @@ lane :release do |lane|
     # publish a new release into Github
     github_release = set_github_release(
         api_token: GIT_AUTHORIZATION,
-        repository_name: "litoarias/CDProject",
+        repository_name: REPOSITORY_NAME,
         name: "#{type.capitalize} version v#{version}",
         tag_name: "v#{version}",
         description: comments,
