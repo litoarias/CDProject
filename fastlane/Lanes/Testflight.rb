@@ -60,7 +60,6 @@ lane :beta do
     # Remove temporary keychain
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
-
     # Commit the version bump
     commit_version_bump(xcodeproj: "#{APP_NAME}.xcodeproj")
 

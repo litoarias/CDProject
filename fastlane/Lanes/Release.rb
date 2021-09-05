@@ -2,37 +2,23 @@ lane :release do |lane|
 
   begin
       
-    # begin 
     if !lane[:bump]
       raise Exception.new "No bump type defined! Use one of: patch | minor | major".red
     end
-    # rescue Exception => e  
-    #   puts e.message  
-    #   exit!
-    # end  
 
-    # get the last commit comments from Git history
-    # and creates our changelog
-    comments = git_changelog
+    # Temporay keychain creation
+    ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
     
     # calculates the new version according to
     # the semantic version added
     type = lane[:bump]
 
-    old = last_git_tag || "0.0.1"
-
-    version = git_semantic_versioning(old, type)
-
-    # set the new version number
     increment_version_number(
-        version_number: version
+      bump_type: type # Automatically increment patch version number
     )
-
+    
     # increment build number
-    increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
-
-    # Temporay keychain creation
-    ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
+    increment_build_number
 
     # Connect to App Store Connect
     api_key = app_store_connect_api_key(
@@ -68,22 +54,23 @@ lane :release do |lane|
 
     # Publish tag and release on Github
     # creates a bump version commit 
-    commit_version_bump(
-      message: "Version bumped to v#{version}"
-    )
+    commit_version_bump
 
     # push bump commit
     push_to_git_remote(
         tags: false
     )
 
+    # get the last commit comments from Git history
+    # and creates our changelog
+    comments = git_changelog
+
     # create a local tag with the new version
     add_git_tag(
-        message: comments,
-        tag: "v#{version}",
-        prefix: "v",
-        build_number: version
+        message: comments
     )    
+
+    version = get_version_number
 
     # publish a new release into Github
     github_release = set_github_release(
@@ -111,7 +98,6 @@ lane :release do |lane|
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
   rescue => exception
-    puts exception.to_s
     on_error(exception)
   end
   
