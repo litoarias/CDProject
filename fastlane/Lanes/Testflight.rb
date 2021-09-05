@@ -2,6 +2,12 @@ lane :beta do
 
   begin
     
+    # Ensure that your git status is not dirty
+    ensure_git_status_clean
+
+    # increment build number
+    increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
+    
     # Temporay keychain creation
     ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
 
@@ -47,12 +53,6 @@ lane :beta do
       notify_external_testers: false,
       ipa: "./#{APP_NAME}.ipa"
     )
-
-    # Ensure that your git status is not dirty
-    ensure_git_status_clean
-
-    # increment build number
-    increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
 
     # Successful message slack
     broadcast_message
