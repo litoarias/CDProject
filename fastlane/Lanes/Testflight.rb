@@ -64,10 +64,6 @@ lane :beta do
     # Commit the version bump
     commit_version_bump(xcodeproj: "#{APP_NAME}.xcodeproj")
 
-    # Add a git tag for this build. This will automatically
-    # use an appropriate git tag name
-    add_git_tag
-
     # Push the new commit and tag back to your git remote
     push_to_git_remote
 
