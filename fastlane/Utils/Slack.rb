@@ -29,6 +29,7 @@ def on_error(exception)
     message: exception.to_s,
     slack_url: SLACK_CHANNEL,
     success: false,
-    payload: { "Output" => exception.to_s }
+    payload: { "Output" => exception.to_s },
+    fail_on_error: true
   )
 end 

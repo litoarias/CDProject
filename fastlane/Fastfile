@@ -8,8 +8,28 @@ import "Lanes/Release.rb"
 import "Lanes/Testflight.rb"
 
 platform :ios do
-  override_lane :release do      
+ 
+  # Release
+  lane :release do | params |  
+    
+    begin
+      
+      if !params[:bump]
+        puts "No bump type defined! Use one of: patch | minor | major".red
+        UI.user_error!("No bump type defined! Use one of: patch | minor | major".red)
+      end
+    
+      lane private_release bump: params[:bump]
+
+    rescue => exception
+      on_error(exception)
+    end
+
   end
-  override_lane :closed_beta do      
+
+  # Beta
+  lane :beta do 
+    lane private_beta     
   end
+
 end

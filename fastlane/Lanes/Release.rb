@@ -1,22 +1,19 @@
-lane :release do |lane|
+private_lane :private_release do | params |
 
   begin
-
-    if !lane[:bump]
-      raise Exception.new "No bump type defined! Use one of: patch | minor | major".red
-    end
 
     # Temporay keychain creation
     ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
     
     # the semantic version added
-    type = lane[:bump]
+    type = params[:bump]
 
+    # Automatically increment version number
     increment_version_number(
-      bump_type: type # Automatically increment patch version number
+      bump_type: type 
     )
     
-    # increment build number
+    # Automatically increment build number
     increment_build_number
 
     # Connect to App Store Connect
@@ -51,7 +48,7 @@ lane :release do |lane|
       }
     )
 
-    # Transport and deploy to App Store Connect
+    # Transport and deploy new compilation to App Store Connect
     pilot(
       apple_id: "#{DEVELOPER_APP_ID}",
       app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
@@ -61,13 +58,7 @@ lane :release do |lane|
       notify_external_testers: false,
       ipa: "./#{APP_NAME}.ipa"
     )
-
-    # Send successfully upload binary message
-    broadcast_message
     
-    # Remove temporary keychain
-    delete_temp_keychain(TEMP_KEYCHAIN_USER)
-
     version = get_version_number
 
     # Publish tag and release on Github
@@ -94,14 +85,20 @@ lane :release do |lane|
     )      
 
     # publish a new release into Github
-    github_release = set_github_release(
-        api_token: GIT_AUTHORIZATION,
-        repository_name: REPOSITORY_NAME,
-        name: "#{type.capitalize} version v#{version}",
-        tag_name: "v#{version}",
-        description: comments,
-        commitish: "main"
+    set_github_release(
+      api_token: GIT_AUTHORIZATION,
+      repository_name: REPOSITORY_NAME,
+      name: "#{type.capitalize} version v#{version}",
+      tag_name: "v#{version}",
+      description: comments,
+      commitish: "main"
     )
+
+    # Send successfully upload binary message
+    broadcast_message
+    
+    # Remove temporary keychain
+    delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
   rescue => exception
     on_error(exception)

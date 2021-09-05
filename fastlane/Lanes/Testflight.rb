@@ -1,4 +1,4 @@
-lane :beta do
+private_lane :private_beta do
 
   begin
     
