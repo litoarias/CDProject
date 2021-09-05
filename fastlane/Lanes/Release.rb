@@ -69,13 +69,12 @@ lane :release do |lane|
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
     version = get_version_number
-    
+
     # Publish tag and release on Github
     # creates a bump version commit 
     commit_version_bump(
       message: "Version bumped to v#{version}"
     )
-
 
     # push bump commit
     push_to_git_remote(
@@ -88,8 +87,11 @@ lane :release do |lane|
 
     # create a local tag with the new version
     add_git_tag(
-      message: comments
-    )   
+      message: comments,
+      tag: "v#{version}",
+      prefix: "v",
+      build_number: version
+    )      
 
     # publish a new release into Github
     github_release = set_github_release(
