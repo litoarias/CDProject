@@ -1,9 +1,7 @@
-lane :closed_beta do
+lane :beta do
+
   begin
     
-    # increment build number
-    increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
-
     # Temporay keychain creation
     ensure_temp_keychain(TEMP_KEYCHAIN_USER, TEMP_KEYCHAIN_PASSWORD)
 
@@ -50,8 +48,16 @@ lane :closed_beta do
       ipa: "./#{APP_NAME}.ipa"
     )
 
+    # Ensure that your git status is not dirty
+    ensure_git_status_clean
+
+    # increment build number
+    increment_build_number(xcodeproj: "#{APP_NAME}.xcodeproj")
+
+    # Successful message slack
     broadcast_message
 
+    # Remove temporary keychain
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
   rescue => exception

@@ -20,9 +20,9 @@ or alternatively using `brew install fastlane`
 fastlane release
 ```
 
-### closed_beta
+### beta
 ```
-fastlane closed_beta
+fastlane beta
 ```
 
 
