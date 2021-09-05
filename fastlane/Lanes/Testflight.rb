@@ -57,14 +57,14 @@ private_lane :private_beta do
     # Successful message slack
     broadcast_message
 
-    # Remove temporary keychain
-    delete_temp_keychain(TEMP_KEYCHAIN_USER)
-
     # Commit the version bump
     commit_version_bump(xcodeproj: "#{APP_NAME}.xcodeproj")
 
     # Push the new commit and tag back to your git remote
     push_to_git_remote
+
+    # Remove temporary keychain
+    delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
   rescue => exception
     on_error(exception)
