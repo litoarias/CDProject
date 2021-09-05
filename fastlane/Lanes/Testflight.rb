@@ -67,6 +67,7 @@ private_lane :private_beta do
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
   rescue => exception
+    puts exception.to_s
     on_error(exception)
   end
 
