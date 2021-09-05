@@ -19,7 +19,7 @@ platform :ios do
         UI.user_error!("No bump type defined! Use one of: patch | minor | major".red)
       end
     
-      lane private_release bump: params[:bump]
+      private_release bump: params[:bump]
 
     rescue => exception
       on_error(exception)
@@ -29,7 +29,7 @@ platform :ios do
 
   # Beta
   lane :beta do 
-    lane private_beta     
+    private_beta     
   end
 
 end
