@@ -60,6 +60,17 @@ lane :beta do
     # Remove temporary keychain
     delete_temp_keychain(TEMP_KEYCHAIN_USER)
 
+
+    # Commit the version bump
+    commit_version_bump(xcodeproj: "Example.xcodeproj")
+
+    # Add a git tag for this build. This will automatically
+    # use an appropriate git tag name
+    add_git_tag
+
+    # Push the new commit and tag back to your git remote
+    push_to_git_remote
+
   rescue => exception
     on_error(exception)
   end
